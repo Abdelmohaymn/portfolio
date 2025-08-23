@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:portfolio/constants/index.dart';
 import 'package:portfolio/models/project.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' as math;
+
+import 'image_with_loading_indicator.dart';
 
 class ProjectCard extends StatefulWidget {
   final Project project;
@@ -77,80 +80,106 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
   }
 
   void _showProjectImages(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
+
     showDialog(
       context: context,
       barrierColor: AppColors.withAlpha(AppColors.scaffoldBackground, 0.95),
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.zero,
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.transparent,
-              ),
-            ),
-            Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.8,
-                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+        child: RawKeyboardListener(
+          focusNode: FocusNode()..requestFocus(),
+          onKey: (RawKeyEvent event) {
+            if (event is RawKeyDownEvent) {
+              final double scrollAmount = 100.0;
+
+              if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                scrollController.animateTo(
+                  scrollController.offset + scrollAmount,
+                  duration: Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                );
+              } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                scrollController.animateTo(
+                  scrollController.offset - scrollAmount,
+                  duration: Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                );
+              } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+                Navigator.pop(context);
+              }
+            }
+          },
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.transparent,
                 ),
-                child: Stack(
-                  children: [
-                    ListView.builder(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppDimensions.spacingXL,
-                        horizontal: AppDimensions.spacingXL,
-                      ),
-                      itemCount: widget.project.images.length,
-                      itemBuilder: (context, index) => Container(
-                        margin: EdgeInsets.only(bottom: AppDimensions.spacingL),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusL),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.glowOverlay,
-                              blurRadius: 20,
-                              spreadRadius: 2,
+              ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.8,
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  ),
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        controller: scrollController,
+                        padding: EdgeInsets.symmetric(
+                          vertical: AppDimensions.spacingXL,
+                          horizontal: AppDimensions.spacingXL,
+                        ),
+                        itemCount: widget.project.images.length,
+                        itemBuilder: (context, index) => Container(
+                          margin: EdgeInsets.only(bottom: AppDimensions.spacingL),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusL),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.glowOverlay,
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusL),
+                            child: ImageWithLoadingIndicator(
+                              imagePath: widget.project.images[index],
                             ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusL),
-                          child: Image.asset(
-                            widget.project.images[index],
-                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      top: AppDimensions.spacingM,
-                      right: AppDimensions.spacingM,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 24,
+                      Positioned(
+                        top: AppDimensions.spacingM,
+                        right: AppDimensions.spacingM,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            shape: BoxShape.circle,
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

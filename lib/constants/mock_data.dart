@@ -63,7 +63,7 @@ class MockData {
         'assets/projects/shaghlni_1.png',
       ],
       logo: 'assets/projects_logos/shaghlni.png',
-      title: 'Shaghlni',
+      title: 'Shaghalni',
       description: 'A mobile app for connecting job seekers and companies',
       features: [
         'role-based accounts',
@@ -80,7 +80,7 @@ class MockData {
         'assets/projects/pety_2.png',
       ],
       logo: 'assets/projects_logos/pety.png',
-      title: 'Shaghlni',
+      title: 'Pety',
       description: 'A mobile app that connects pet owners with vets, groomers, and sitters',
       features: [
         'chatbot',

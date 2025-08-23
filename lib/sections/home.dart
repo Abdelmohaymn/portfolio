@@ -452,9 +452,9 @@ class _HomeSectionState extends State<HomeSection> {
     final isMobile = screenWidth < 768;
 
     if (isMobile) {
-      return _buildMobileComingSoon();
+      return SelectionArea(child: _buildMobileComingSoon());
     } else {
-      return _buildDesktopPortfolio();
+      return SelectionArea(child: _buildDesktopPortfolio());
     }
   }
 }
