@@ -3,14 +3,13 @@ name: Deploy Flutter Web to GitHub Pages
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
-# Add permissions for better compatibility
+# Essential permissions
 permissions:
-  contents: read
+  contents: write  # Changed from 'read' to 'write'
   pages: write
   id-token: write
+  actions: read
 
 jobs:
   build-and-deploy:
@@ -19,6 +18,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Fetch full history
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -30,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Build web
-        run: flutter build web --release --base-href "/${{ github.event.portfolio }}/" --web-renderer html
+        run: flutter build web --release --base-href "/portfolio/" --web-renderer html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
@@ -39,4 +41,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
           publish_branch: gh-pages
-          force_orphan: true  # Helps avoid some deployment issues
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
