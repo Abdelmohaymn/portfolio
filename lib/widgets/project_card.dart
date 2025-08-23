@@ -156,8 +156,42 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
     );
   }
 
+  // Helper method to determine if we should use mobile layout
+  bool _isMobileLayout(BuildContext context) {
+    return MediaQuery.of(context).size.width < 600;
+  }
+
+  // Helper method to get responsive logo size
+  double _getLogoSize(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600) return 50;
+    if (screenWidth < 900) return 55;
+    return 60;
+  }
+
+  // Helper method to get responsive padding
+  EdgeInsets _getCardPadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600) {
+      return EdgeInsets.all(AppDimensions.spacingM);
+    }
+    return EdgeInsets.all(AppDimensions.spacingL);
+  }
+
+  // Helper method to get responsive margin
+  EdgeInsets _getCardMargin(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600) {
+      return EdgeInsets.all(AppDimensions.spacingS);
+    }
+    return EdgeInsets.all(AppDimensions.spacingM);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isMobile = _isMobileLayout(context);
+    final logoSize = _getLogoSize(context);
+
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovered = true);
@@ -168,15 +202,17 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
         _controller.reverse();
       },
       child: GestureDetector(
-        onTap: () => _showProjectImages(context),
+        onTap: () => {
+          if(widget.project.images.isNotEmpty)_showProjectImages(context)
+        },
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
             return Transform.scale(
               scale: _scaleAnimation.value,
               child: Container(
-                height: 300,
-                margin: EdgeInsets.all(AppDimensions.spacingM),
+                width: double.infinity,
+                margin: _getCardMargin(context),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -199,114 +235,10 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
                 child: Stack(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(AppDimensions.spacingL),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Left column with logo
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
-                            child: Image.asset(
-                              widget.project.logo,
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: AppDimensions.spacingL),
-                          // Right column with content
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ShaderMask(
-                                  shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
-                                  child: Text(
-                                    widget.project.title,
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: AppDimensions.spacingS),
-                                Text(
-                                  widget.project.description,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                SizedBox(height: AppDimensions.spacingM),
-                                if (widget.project.features.isNotEmpty) ...[
-                                  Text(
-                                    'Features',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  SizedBox(height: AppDimensions.spacingS),
-                                  Wrap(
-                                    spacing: AppDimensions.spacingS,
-                                    runSpacing: AppDimensions.spacingS,
-                                    children: widget.project.features.map((feature) {
-                                      final color = getRandomAccentColor();
-                                      return Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: AppDimensions.spacingM,
-                                          vertical: AppDimensions.spacingXS,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppColors.withAlpha(color, 0.5),
-                                          ),
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          feature,
-                                          style: TextStyle(color: color),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                                if (widget.project.tools?.isNotEmpty ?? false) ...[
-                                  SizedBox(height: AppDimensions.spacingM),
-                                  Text(
-                                    'Tools',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  SizedBox(height: AppDimensions.spacingS),
-                                  Wrap(
-                                    spacing: AppDimensions.spacingS,
-                                    runSpacing: AppDimensions.spacingS,
-                                    children: (widget.project.tools ?? []).map((tool) {
-                                      final color = getRandomAccentColor();
-                                      return Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: AppDimensions.spacingM,
-                                          vertical: AppDimensions.spacingXS,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppColors.withAlpha(color, 0.5),
-                                          ),
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          tool,
-                                          style: TextStyle(color: color),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                      padding: _getCardPadding(context),
+                      child: isMobile
+                          ? _buildMobileLayout(logoSize)
+                          : _buildDesktopLayout(logoSize),
                     ),
                     if (_isHovered)
                       Positioned.fill(
@@ -318,43 +250,41 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: AppColors.primaryGradient,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.remove_red_eye,
-                                    color: Colors.white,
-                                    size: 32,
+                              if(widget.project.images.isNotEmpty)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: AppColors.primaryGradient,
+                                    shape: BoxShape.circle,
                                   ),
-                                  onPressed: () => _showProjectImages(context),
+                                  child: IconButton(
+                                    icon: Icon(
+                                      Icons.remove_red_eye,
+                                      color: Colors.white,
+                                      size: isMobile ? 28 : 32,
+                                    ),
+                                    onPressed: () => _showProjectImages(context),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: AppDimensions.spacingL),
+                              if(widget.project.images.isNotEmpty)
+                                SizedBox(height: AppDimensions.spacingL),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   if (widget.project.googlePlayLink != null)
                                     IconButton(
                                       icon: SvgPicture.asset(
-                                        'assets/icons/google_play.svg',
-                                        width: 32,
-                                        height: 32,
-                                        colorFilter: ColorFilter.mode(
-                                          AppColors.textPrimary,
-                                          BlendMode.srcIn,
-                                        ),
+                                        'assets/icons/google.svg',
+                                        width: isMobile ? 35 : 40,
+                                        height: isMobile ? 35 : 40,
                                       ),
                                       onPressed: () => _launchURL(widget.project.googlePlayLink!),
                                     ),
                                   if (widget.project.appStoreLink != null)
                                     IconButton(
-                                      icon: Icon(
-                                        Icons.apple,
-                                        size: 32,
-                                        color: AppColors.textPrimary,
+                                      icon: SvgPicture.asset(
+                                        'assets/icons/apple.svg',
+                                        width: isMobile ? 35 : 40,
+                                        height: isMobile ? 35 : 40,
                                       ),
                                       onPressed: () => _launchURL(widget.project.appStoreLink!),
                                     ),
@@ -373,6 +303,7 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
                                         'View Details',
                                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                           color: Colors.white,
+                                          fontSize: isMobile ? 14 : null,
                                           decoration: _isIconHovered ? TextDecoration.underline : null,
                                         ),
                                       ),
@@ -391,6 +322,175 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildDesktopLayout(double logoSize) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left column with logo
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
+            child: Image.asset(
+              widget.project.logo,
+              width: logoSize,
+              height: logoSize,
+              fit: BoxFit.fill,
+            ),
+          ),
+          SizedBox(width: AppDimensions.spacingL),
+          // Right column with content
+          Expanded(
+            child: _buildContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(double logoSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Top row with logo and title
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
+              child: Image.asset(
+                widget.project.logo,
+                width: logoSize,
+                height: logoSize,
+                fit: BoxFit.fill,
+              ),
+            ),
+            SizedBox(width: AppDimensions.spacingM),
+            Expanded(
+              child: ShaderMask(
+                shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+                child: Text(
+                  widget.project.title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: AppDimensions.spacingM),
+        // Content below
+        _buildContent(),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Title for desktop layout only
+        if (!_isMobileLayout(context)) ...[
+          ShaderMask(
+            shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+            child: Text(
+              widget.project.title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: AppDimensions.spacingS),
+        ],
+        Text(
+          widget.project.description,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: _isMobileLayout(context) ? 14 : null,
+          ),
+        ),
+        SizedBox(height: AppDimensions.spacingM),
+        if (widget.project.features.isNotEmpty) ...[
+          Text(
+            'Features',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: _isMobileLayout(context) ? 14 : null,
+            ),
+          ),
+          SizedBox(height: AppDimensions.spacingS),
+          Wrap(
+            spacing: AppDimensions.spacingS,
+            runSpacing: AppDimensions.spacingS,
+            children: widget.project.features.map((feature) {
+              final color = getRandomAccentColor();
+              return Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: _isMobileLayout(context) ? AppDimensions.spacingS : AppDimensions.spacingM,
+                  vertical: AppDimensions.spacingXS,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColors.withAlpha(color, 0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  feature,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: _isMobileLayout(context) ? 12 : 14,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+        if (widget.project.tools?.isNotEmpty ?? false) ...[
+          SizedBox(height: AppDimensions.spacingM),
+          Text(
+            'Tools',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: _isMobileLayout(context) ? 14 : null,
+            ),
+          ),
+          SizedBox(height: AppDimensions.spacingS),
+          Wrap(
+            spacing: AppDimensions.spacingS,
+            runSpacing: AppDimensions.spacingS,
+            children: (widget.project.tools ?? []).map((tool) {
+              final color = getRandomAccentColor();
+              return Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: _isMobileLayout(context) ? AppDimensions.spacingS : AppDimensions.spacingM,
+                  vertical: AppDimensions.spacingXS,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColors.withAlpha(color, 0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  tool,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: _isMobileLayout(context) ? 12 : 14,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -27,10 +27,14 @@ class AppDimensions {
   static const double profilePictureSizeMobile = 220.0;
   
   // Button Sizes
-  static const double buttonHeight = 56.0;
+  static const double buttonHeight = 48.0;
   static const double buttonPaddingHorizontal = 32.0;
   static const double buttonPaddingVertical = 16.0;
   
+  // Button dimensions
+  static const double buttonWidth = 200.0;
+  static const double buttonBorderWidth = 1.5;
+
   // Icon Sizes
   static const double iconSizeS = 16.0;
   static const double iconSizeM = 20.0;
@@ -49,21 +53,26 @@ class AppDimensions {
   // Form Field Dimensions
   static const double formFieldHeight = 56.0;
   static const double formFieldPadding = 16.0;
-  
+
   // Responsive Breakpoints
   static const double mobileBreakpoint = 768.0;
   static const double tabletBreakpoint = 1024.0;
-  
+
   // Animation Durations
   static const Duration animationDurationFast = Duration(milliseconds: 200);
   static const Duration animationDurationNormal = Duration(milliseconds: 300);
   static const Duration animationDurationSlow = Duration(milliseconds: 500);
   static const Duration animationDurationVerySlow = Duration(milliseconds: 800);
-  
+
   // Glow Animation
   static const Duration glowAnimationDuration = Duration(milliseconds: 2000);
   static const Duration backgroundAnimationDuration = Duration(seconds: 20);
   
   // Scroll Animation
   static const Duration scrollAnimationDuration = Duration(milliseconds: 800);
-} 
+
+  // Profile picture dimensions
+  static const double profileBorderWidth = 3.0;
+  static const double profileGlowRadius = 40.0;
+  static const double profileGlowSpread = 15.0;
+}

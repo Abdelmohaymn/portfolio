@@ -3,10 +3,12 @@ import 'package:portfolio/constants/index.dart';
 
 class CustomNavigationBar extends StatefulWidget implements PreferredSizeWidget {
   final void Function(String) onSelected;
+  final String currentSection;
 
   const CustomNavigationBar({
     super.key,
     required this.onSelected,
+    required this.currentSection,
   });
 
   @override
@@ -17,8 +19,6 @@ class CustomNavigationBar extends StatefulWidget implements PreferredSizeWidget 
 }
 
 class _CustomNavigationBarState extends State<CustomNavigationBar> {
-  String _currentSection = 'home';
-
   final List<_NavItem> _items = [
     _NavItem(label: AppStrings.homeNav, id: 'home'),
     _NavItem(label: AppStrings.aboutNav, id: 'about'),
@@ -77,14 +77,11 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   }
 
   Widget _buildNavItem(_NavItem item, bool isMobile) {
-    final isSelected = _currentSection == item.id;
+    final isSelected = widget.currentSection == item.id;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? AppDimensions.spacingXS : AppDimensions.spacingM),
       child: TextButton(
-        onPressed: () {
-          setState(() => _currentSection = item.id);
-          widget.onSelected(item.id);
-        },
+        onPressed: () => widget.onSelected(item.id),
         child: Text(
           item.label,
           style: TextStyle(

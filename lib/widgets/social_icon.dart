@@ -36,7 +36,7 @@ class _SocialIconState extends State<SocialIcon> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: Colors.white.withOpacity(0.1),
                 width: 1.5,
@@ -54,8 +54,8 @@ class _SocialIconState extends State<SocialIcon> {
                 ? Icon(widget.icon, color: Colors.white, size: 24)
                 : SvgPicture.asset(
                     widget.svgPath!,
-                    width: 24,
-                    height: 24,
+                    width: 30,
+                    height: 30,
                     colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
           ),

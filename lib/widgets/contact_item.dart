@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:portfolio/constants/colors.dart';
 
 class ContactItem extends StatefulWidget {
-  final IconData icon;
+  final String iconPath;
   final String text;
   final VoidCallback? onTap;
 
   const ContactItem({
     super.key,
-    required this.icon,
+    required this.iconPath,
     required this.text,
     this.onTap,
   });
@@ -67,7 +68,11 @@ class _ContactItemState extends State<ContactItem> {
                         ),
                     ],
                   ),
-                  child: Icon(widget.icon, color: Colors.white, size: 24),
+                  child: SvgPicture.asset(
+                    widget.iconPath,
+                    width: 30,
+                    height: 30,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),

@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:portfolio/constants/index.dart';
 import 'package:portfolio/widgets/index.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:portfolio/constants/mock_data.dart';
 
 class HeroSection extends StatefulWidget {
-  const HeroSection({super.key});
+  final VoidCallback onViewWorkPressed;
+  const HeroSection({super.key, required this.onViewWorkPressed});
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
 }
 
-class _HeroSectionState extends State<HeroSection>
-    with TickerProviderStateMixin {
+class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _glowController;
   late AnimationController _backgroundAnimation;
@@ -43,16 +45,26 @@ class _HeroSectionState extends State<HeroSection>
     ));
     
     _glowAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
+      begin: 0.9,
+      end: 1.1,
     ).animate(CurvedAnimation(
       parent: _glowController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInOutSine,
     ));
 
-    // Start the glow and background animations
     _glowController.repeat(reverse: true);
     _backgroundAnimation.repeat();
+  }
+
+  Future<void> _downloadCV() async {
+    final Uri url = Uri.base.resolve('assets/cv/Abdelmohaymn_Albashier_CV.pdf');
+    if (!await launchUrl(
+      url,
+      webOnlyWindowName: '_blank',
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   @override
@@ -72,10 +84,12 @@ class _HeroSectionState extends State<HeroSection>
 
     return Container(
       width: double.infinity,
-      height: size.height - appBarHeight - statusBarHeight,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? AppDimensions.sectionPaddingHorizontalMobile : AppDimensions.sectionPaddingHorizontal,
-        vertical: AppDimensions.sectionPaddingVertical,
+      height: size.height,
+      padding: EdgeInsets.only(
+        left: isMobile ? AppDimensions.sectionPaddingHorizontalMobile : AppDimensions.sectionPaddingHorizontal,
+        right: isMobile ? AppDimensions.sectionPaddingHorizontalMobile : AppDimensions.sectionPaddingHorizontal,
+        top: appBarHeight + statusBarHeight + AppDimensions.sectionPaddingVertical,
+        bottom: AppDimensions.sectionPaddingVertical,
       ),
       child: Stack(
         children: [
@@ -105,114 +119,73 @@ class _HeroSectionState extends State<HeroSection>
       children: [
         Expanded(
           flex: 3,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-              SizedBox(height: AppDimensions.spacingHuge),
-              ShaderMask(
-                shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
-                child: Text(
-                  AppStrings.heroGreeting,
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-              height: 1.1,
-            ),
-          ),
-              ),
-              SizedBox(height: AppDimensions.spacingXL),
-          Text(
-                AppStrings.heroTitle,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppColors.textSecondary,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-              SizedBox(height: AppDimensions.spacingXXL),
-          Text(
-                AppStrings.heroDescription,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textTertiary,
-              height: 1.6,
-            ),
-          ),
-              SizedBox(height: AppDimensions.spacingXXXL),
-          Wrap(
-                spacing: AppDimensions.spacingM,
-                runSpacing: AppDimensions.spacingM,
-            children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ShaderMask(
+                  shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+                  child: Text(
+                    MockData.heroTitle,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      height: 1.1,
+                      color: Colors.white,
                     ),
-                    child: GradientButton(
-                      text: AppStrings.viewWorkButton,
-                onPressed: () {
-                  // TODO: Navigate to projects section
-                },
-                      isOutlined: false,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.spacingXL),
+                Text(
+                  MockData.heroSubtitle,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppDimensions.spacingXXL),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: StatNumber(number: MockData.projectsCount, label: AppStrings.projectsDelivered)),
+                    Expanded(child: StatNumber(number: MockData.publishedAppsCount, label: AppStrings.publishedApps)),
+                    Expanded(child: StatNumber(number: MockData.experienceYearsCount, label: AppStrings.yearsExperience)),
+                  ],
+                ),
+                const SizedBox(height: AppDimensions.spacingXXXL),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: AppDimensions.buttonWidth,
+                      height: AppDimensions.buttonHeight,
+                      child: GradientButton(
+                        text: AppStrings.viewWorkButton,
+                        onPressed: widget.onViewWorkPressed,
+                      ),
                     ),
-                  ),
-                  GradientButton(
-                    text: AppStrings.getInTouchButton,
-                    onPressed: () {
-                      // TODO: Navigate to contact section
-                    },
-                    isOutlined: true,
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: AppDimensions.spacingL),
+                    SizedBox(
+                      width: AppDimensions.buttonWidth,
+                      height: AppDimensions.buttonHeight,
+                      child: GradientBorderButton(
+                        text: AppStrings.downloadCvButton,
+                        onPressed: _downloadCV,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         SizedBox(width: AppDimensions.spacingXXXL),
         Expanded(
           flex: 2,
           child: Center(
-            child: MouseRegion(
-              onEnter: (_) => _animationController.forward(),
-              onExit: (_) => _animationController.reverse(),
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_animationController, _glowController]),
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _scaleAnimation.value,
-                    child: Container(
-                      width: AppDimensions.profilePictureSizeDesktop + 20,
-                      height: AppDimensions.profilePictureSizeDesktop + 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.cardBackgroundAlt,
-                        border: Border.all(
-                          color: AppColors.cardBorder,
-                          width: 3.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4 * _glowAnimation.value),
-                            blurRadius: 40 * _glowAnimation.value,
-                            spreadRadius: 15 * _glowAnimation.value,
-                          ),
-                          BoxShadow(
-                            color: AppColors.secondary.withValues(alpha: 0.4 * _glowAnimation.value),
-                            blurRadius: 40 * _glowAnimation.value,
-                            spreadRadius: 15 * _glowAnimation.value,
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/profile.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            child: const GlowingProfilePicture(),
           ),
         ),
       ],
@@ -220,132 +193,63 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   Widget _buildMobileLayout() {
-    return Stack(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: AppDimensions.spacingHuge),
-            // Profile picture for mobile
-            MouseRegion(
-              onEnter: (_) => _animationController.forward(),
-              onExit: (_) => _animationController.reverse(),
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_animationController, _glowController]),
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _scaleAnimation.value,
-                    child: Container(
-                      width: AppDimensions.profilePictureSizeMobile + 20,
-                      height: AppDimensions.profilePictureSizeMobile + 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.primaryGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4 * _glowAnimation.value),
-                            blurRadius: 30 * _glowAnimation.value,
-                            spreadRadius: 10 * _glowAnimation.value,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.surface,
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/profile.png',
-                              width: AppDimensions.profilePictureSizeMobile,
-                              height: AppDimensions.profilePictureSizeMobile,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: AppDimensions.spacingXL),
-            ShaderMask(
-              shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
-                child: Text(
-            AppStrings.heroGreeting,
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+        ShaderMask(
+          shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+          child: Text(
+            MockData.heroTitle,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
               height: 1.1,
+              color: Colors.white,
             ),
             textAlign: TextAlign.center,
           ),
-            ),
-            SizedBox(height: AppDimensions.spacingXL),
-            Text(
-              AppStrings.heroTitle,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: AppDimensions.spacingXXL),
-            Text(
-              AppStrings.heroDescription,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textTertiary,
-            height: 1.6,
+        ),
+        const SizedBox(height: AppDimensions.spacingL),
+        Text(
+          MockData.heroSubtitle,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
           ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: AppDimensions.spacingXXXL),
-            Wrap(
-              spacing: AppDimensions.spacingM,
-              runSpacing: AppDimensions.spacingM,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
-                  ),
-                  child: GradientButton(
-                    text: AppStrings.viewWorkButton,
-                    onPressed: () {
-                      // TODO: Navigate to projects section
-                    },
-                    isOutlined: false,
-                  ),
-                ),
-                GradientButton(
-                  text: AppStrings.getInTouchButton,
-                  onPressed: () {
-                    // TODO: Navigate to contact section
-                  },
-                  isOutlined: true,
-                  ),
-              ],
-            ),
-            SizedBox(height: AppDimensions.spacingMassive),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppDimensions.spacingXL),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(child: StatNumber(number: MockData.projectsCount, label: AppStrings.projectsDelivered)),
+            Expanded(child: StatNumber(number: MockData.publishedAppsCount, label: AppStrings.publishedApps)),
+            Expanded(child: StatNumber(number: MockData.experienceYearsCount, label: AppStrings.yearsExperience)),
           ],
         ),
-        Positioned(
-          right: AppDimensions.spacingL,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: Container(
-              width: 3,
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(1.5),
+        const SizedBox(height: AppDimensions.spacingXXL),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.spacingXL),
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: AppDimensions.buttonHeight,
+                child: GradientButton(
+                  text: AppStrings.viewWorkButton,
+                  onPressed: widget.onViewWorkPressed,
+                ),
               ),
-            ),
+              const SizedBox(height: AppDimensions.spacingM),
+              SizedBox(
+                width: double.infinity,
+                height: AppDimensions.buttonHeight,
+                child: GradientBorderButton(
+                  text: AppStrings.downloadCvButton,
+                  onPressed: _downloadCV,
+                ),
+              ),
+            ],
           ),
         ),
       ],

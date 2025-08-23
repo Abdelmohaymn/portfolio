@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/sections/home.dart';
 import 'package:portfolio/constants/index.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:portfolio/splash_screen.dart';
 
 class PortfolioApp extends StatelessWidget {
   const PortfolioApp({super.key});
@@ -10,7 +11,7 @@ class PortfolioApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Portfolio',
+      title: 'Abdelmohaymn Albashier',
       theme: ThemeData(
         useMaterial3: true,
         textTheme: GoogleFonts.montserratTextTheme(
@@ -40,7 +41,7 @@ class PortfolioApp extends StatelessWidget {
           child: widget!,
         );
       },
-      home: const HomeSection(),
+      home: const SplashScreen(),
     );
   }
 }
