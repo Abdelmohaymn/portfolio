@@ -88,8 +88,8 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
       padding: EdgeInsets.only(
         left: isMobile ? AppDimensions.sectionPaddingHorizontalMobile : AppDimensions.sectionPaddingHorizontal,
         right: isMobile ? AppDimensions.sectionPaddingHorizontalMobile : AppDimensions.sectionPaddingHorizontal,
-        top: appBarHeight + statusBarHeight + AppDimensions.sectionPaddingVertical,
-        bottom: AppDimensions.sectionPaddingVertical,
+        top: appBarHeight + statusBarHeight + (isMobile ? AppDimensions.spacingXL : AppDimensions.sectionPaddingVertical),
+        bottom: isMobile ? AppDimensions.spacingXL : AppDimensions.sectionPaddingVertical,
       ),
       child: Stack(
         children: [
@@ -198,66 +198,76 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   }
 
   Widget _buildMobileLayout() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ShaderMask(
-          shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
-          child: Text(
-            MockData.heroTitle,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              height: 1.1,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: AppDimensions.spacingL),
-        Text(
-          MockData.heroSubtitle,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: AppDimensions.spacingXL),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth;
+        final double gap = AppDimensions.spacingL;
+        final double halfWidth = (availableWidth - gap) / 2;
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(child: StatNumber(number: MockData.projectsCount, label: AppStrings.projectsDelivered)),
-            Expanded(child: StatNumber(number: MockData.publishedAppsCount, label: AppStrings.publishedApps)),
-            Expanded(child: StatNumber(number: MockData.experienceYearsCount, label: AppStrings.yearsExperience)),
+            ShaderMask(
+              shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+              child: Text(
+                MockData.heroTitle,
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: AppDimensions.spacingM),
+            Text(
+              MockData.heroSubtitle,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppDimensions.spacingXL),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: StatNumber(number: MockData.projectsCount, label: AppStrings.projectsDelivered)),
+                Expanded(child: StatNumber(number: MockData.publishedAppsCount, label: AppStrings.publishedApps)),
+                Expanded(child: StatNumber(number: MockData.experienceYearsCount, label: AppStrings.yearsExperience)),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.spacingXL),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.spacingXL),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: gap,
+                runSpacing: AppDimensions.spacingM,
+                children: [
+                  SizedBox(
+                    width: math.max(halfWidth, AppDimensions.buttonWidth),
+                    height: AppDimensions.buttonHeight,
+                    child: GradientButton(
+                      text: AppStrings.viewWorkButton,
+                      onPressed: widget.onViewWorkPressed,
+                    ),
+                  ),
+                  SizedBox(
+                    width: math.max(halfWidth, AppDimensions.buttonWidth),
+                    height: AppDimensions.buttonHeight,
+                    child: GradientBorderButton(
+                      text: AppStrings.downloadCvButton,
+                      onPressed: _downloadCV,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
-        const SizedBox(height: AppDimensions.spacingXXL),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.spacingXL),
-          child: Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: AppDimensions.buttonHeight,
-                child: GradientButton(
-                  text: AppStrings.viewWorkButton,
-                  onPressed: widget.onViewWorkPressed,
-                ),
-              ),
-              const SizedBox(height: AppDimensions.spacingM),
-              SizedBox(
-                width: double.infinity,
-                height: AppDimensions.buttonHeight,
-                child: GradientBorderButton(
-                  text: AppStrings.downloadCvButton,
-                  onPressed: _downloadCV,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
