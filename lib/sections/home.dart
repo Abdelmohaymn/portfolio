@@ -114,8 +114,8 @@ class _HomeSectionState extends State<HomeSection> {
     );
   }
 
-  bool _handleKeyPress(KeyEvent event) {
-    if (event is! KeyDownEvent) return false;
+  bool _handleKeyPress(RawKeyEvent event) {
+    if (event is! RawKeyDownEvent) return false;
 
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
       _scrollController.animateTo(
@@ -297,101 +297,112 @@ class _HomeSectionState extends State<HomeSection> {
 
   // Desktop Portfolio View
   Widget _buildDesktopPortfolio() {
-    return KeyboardListener(
+    return RawKeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyPress,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Theme(
-              data: Theme.of(context).copyWith(
-                scrollbarTheme: ScrollbarThemeData(
-                  thumbColor: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.dragged)) {
-                      return AppColors.gradientEnd;
-                    }
-                    if (states.contains(MaterialState.hovered)) {
-                      return AppColors.gradientStart;
-                    }
-                    return AppColors.gradientStart.withOpacity(0.8);
-                  }),
-                  trackColor: MaterialStateProperty.all(Colors.transparent),
-                  thickness: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.dragged) ||
-                        states.contains(MaterialState.hovered)) {
-                      return 12.0;
-                    }
-                    return 8.0;
-                  }),
-                  radius: const Radius.circular(6),
-                ),
-              ),
-              child: Scrollbar(
-                controller: _scrollController,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      HeroSection(
-                        key: _sectionKeys['home'],
-                        onViewWorkPressed: () => scrollToSection('projects'),
-                      ),
-                      AboutSection(key: _sectionKeys['about']),
-                      ExperienceSection(key: _sectionKeys['experience']),
-                      ProjectsSection(key: _sectionKeys['projects']),
-                      AchievementsSection(key: _sectionKeys['achievements']),
-                      ContactSection(key: _sectionKeys['contact']),
-                    ],
+      onKey: _handleKeyPress,
+      autofocus: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _focusNode.requestFocus(),
+        onTapDown: (_) => _focusNode.requestFocus(),
+        onPanDown: (_) => _focusNode.requestFocus(),
+        onSecondaryTapDown: (_) => _focusNode.requestFocus(),
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Theme(
+                data: Theme.of(context).copyWith(
+                  scrollbarTheme: ScrollbarThemeData(
+                    thumbColor: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.dragged)) {
+                        return AppColors.gradientEnd;
+                      }
+                      if (states.contains(MaterialState.hovered)) {
+                        return AppColors.gradientStart;
+                      }
+                      return AppColors.gradientStart.withOpacity(0.8);
+                    }),
+                    trackColor: MaterialStateProperty.all(Colors.transparent),
+                    thickness: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.dragged) ||
+                          states.contains(MaterialState.hovered)) {
+                        return 12.0;
+                      }
+                      return 8.0;
+                    }),
+                    radius: const Radius.circular(6),
                   ),
                 ),
-              ),
-            ),
-            CustomNavigationBar(
-              onSelected: scrollToSection,
-              currentSection: _currentSection,
-            ),
-            if (_showButtons) ...[
-              Positioned(
-                bottom: 24,
-                left: 24,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [AppColors.gradientStart, AppColors.gradientEnd],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                child: ScrollConfiguration(
+                  behavior: const MaterialScrollBehavior().copyWith(scrollbars: false),
+                  child: Scrollbar(
+                    controller: _scrollController,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          HeroSection(
+                            key: _sectionKeys['home'],
+                            onViewWorkPressed: () => scrollToSection('projects'),
+                          ),
+                          AboutSection(key: _sectionKeys['about']),
+                          ExperienceSection(key: _sectionKeys['experience']),
+                          ProjectsSection(key: _sectionKeys['projects']),
+                          AchievementsSection(key: _sectionKeys['achievements']),
+                          ContactSection(key: _sectionKeys['contact']),
+                        ],
+                      ),
                     ),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () async {
-                          String url = 'https://wa.me/${MockData.phoneValue}';
-                          final uri = Uri.parse(url);
-                          try {
-                            if (await url_launcher.canLaunchUrl(uri)) {
-                              await url_launcher.launchUrl(uri);
+                ),
+              ),
+              CustomNavigationBar(
+                onSelected: scrollToSection,
+                currentSection: _currentSection,
+              ),
+              if (_showButtons) ...[
+                Positioned(
+                  bottom: 24,
+                  left: 24,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColors.gradientStart, AppColors.gradientEnd],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () async {
+                            String url = 'https://wa.me/${MockData.phoneValue}';
+                            final uri = Uri.parse(url);
+                            try {
+                              if (await url_launcher.canLaunchUrl(uri)) {
+                                await url_launcher.launchUrl(uri);
+                              }
+                            } catch (e) {
+                              debugPrint('Could not launch $url: $e');
                             }
-                          } catch (e) {
-                            debugPrint('Could not launch $url: $e');
-                          }
-                        },
-                        splashColor: Colors.white.withOpacity(0.3),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          child: Center(
-                            child: SvgPicture.asset(
-                              'assets/icons/whatsapp.svg',
-                              width: 24,
-                              height: 24,
-                              color: Colors.white,
+                          },
+                          splashColor: Colors.white.withOpacity(0.3),
+                          highlightColor: Colors.white.withOpacity(0.1),
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/icons/whatsapp.svg',
+                                width: 24,
+                                height: 24,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -399,37 +410,37 @@ class _HomeSectionState extends State<HomeSection> {
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: 24,
-                right: 24,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [AppColors.gradientStart, AppColors.gradientEnd],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                Positioned(
+                  bottom: 24,
+                  right: 24,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColors.gradientStart, AppColors.gradientEnd],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _scrollToTop,
-                        splashColor: Colors.white.withOpacity(0.3),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          child: const Center(
-                            child: Icon(
-                              Icons.arrow_upward,
-                              color: Colors.white,
-                              size: 24,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _scrollToTop,
+                          splashColor: Colors.white.withOpacity(0.3),
+                          highlightColor: Colors.white.withOpacity(0.1),
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            child: const Center(
+                              child: Icon(
+                                Icons.arrow_upward,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
                           ),
                         ),
@@ -437,24 +448,17 @@ class _HomeSectionState extends State<HomeSection> {
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    // Check if screen width is mobile (typically < 768px)
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 768;
-
-    if (isMobile) {
-      return SelectionArea(child: _buildMobileComingSoon());
-    } else {
-      return SelectionArea(child: _buildDesktopPortfolio());
-    }
+    // Always show the full portfolio; sections handle their own responsive layouts
+    return SelectionArea(child: _buildDesktopPortfolio());
   }
 }

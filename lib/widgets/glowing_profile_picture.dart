@@ -17,6 +17,7 @@ class _GlowingProfilePictureState extends State<GlowingProfilePicture>
     with SingleTickerProviderStateMixin {
   late AnimationController _glowController;
   late Animation<double> _glowAnimation;
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -45,68 +46,56 @@ class _GlowingProfilePictureState extends State<GlowingProfilePicture>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _glowAnimation,
-      builder: (context, child) {
-        return Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              // Multiple layers of glow for better effect
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.4 * _glowAnimation.value),
-                blurRadius: 30 * _glowAnimation.value,
-                spreadRadius: 10 * _glowAnimation.value,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isHovered ? 1.05 : 1.0,
+        duration: AppDimensions.animationDurationNormal,
+        curve: Curves.easeOut,
+        child: AnimatedBuilder(
+          animation: _glowAnimation,
+          builder: (context, child) {
+            return Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  // Multiple layers of glow for better effect
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.4 * _glowAnimation.value),
+                    blurRadius: 30 * _glowAnimation.value,
+                    spreadRadius: 10 * _glowAnimation.value,
+                  ),
+                  BoxShadow(
+                    color: AppColors.secondary.withValues(alpha: 0.3 * _glowAnimation.value),
+                    blurRadius: 60 * _glowAnimation.value,
+                    spreadRadius: 20 * _glowAnimation.value,
+                  ),
+                  BoxShadow(
+                    color: AppColors.accentPurple.withValues(alpha: 0.2 * _glowAnimation.value),
+                    blurRadius: 90 * _glowAnimation.value,
+                    spreadRadius: 30 * _glowAnimation.value,
+                  ),
+                ],
               ),
-              BoxShadow(
-                color: AppColors.secondary.withValues(alpha: 0.3 * _glowAnimation.value),
-                blurRadius: 60 * _glowAnimation.value,
-                spreadRadius: 20 * _glowAnimation.value,
+              child: CircleAvatar(
+                radius: widget.size,
+                backgroundColor: AppColors.accentOrange,
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: CircleAvatar(
+                    radius: widget.size,
+                    backgroundImage: AssetImage('assets/images/profile.png'),
+                    backgroundColor: AppColors.cardBackgroundAlt,
+                  ),
+                ),
               ),
-              BoxShadow(
-                color: AppColors.accentPurple.withValues(alpha: 0.2 * _glowAnimation.value),
-                blurRadius: 90 * _glowAnimation.value,
-                spreadRadius: 30 * _glowAnimation.value,
-              ),
-            ],
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                width: 3,
-                color: AppColors.primary.withValues(alpha: 0.5),
-              ),
-             color: AppColors.cardBackgroundAlt,
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/profile.png', // Add your profile picture path
-                fit: BoxFit.cover,
-                width: widget.size - 6, // Account for border
-                height: widget.size - 6,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: widget.size - 6,
-                    height: widget.size - 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.primaryGradient,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      size: widget.size * 0.5,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 }

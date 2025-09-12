@@ -81,6 +81,22 @@ Update the following files to customize the portfolio for your needs:
 - Typography: Update Google Fonts in the theme
 - Layout: Adjust responsive breakpoints in individual widget files
 
+## Responsive Layout
+
+- Breakpoints (defined in `lib/constants/dimensions.dart`):
+  - Mobile: width < 768
+  - Tablet: 768 ≤ width < 1024
+  - Desktop: width ≥ 1024
+- Tools used: `MediaQuery`, `LayoutBuilder`, `Expanded`/`Flexible`, `Wrap`, `FittedBox`, and safe paddings from `AppDimensions`.
+- Navigation:
+  - Mobile: top bar with hamburger button opening a bottom sheet menu
+  - Tablet: top bar; sections adapt spacing and sizing
+  - Desktop: top bar with inline items
+- Sections:
+  - Content stacks vertically on mobile; multi-column only on larger screens
+  - Images and carousels scale using constraints and `FittedBox`
+  - Tap targets meet ≥44x44 and paddings scale with screen size
+
 ## Deployment
 
 To build for production:

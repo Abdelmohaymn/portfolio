@@ -155,7 +155,7 @@ class AboutSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(
                 AppDimensions.borderRadiusL - AppDimensions.spacingXS),
             child: Image.asset(
-              'assets/images/about.png',
+              'assets/images/about.jpg',
               fit: BoxFit.cover,
             ),
           ),

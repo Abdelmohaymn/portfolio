@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/constants/index.dart';
 import 'package:portfolio/widgets/project_card.dart';
 import 'package:portfolio/widgets/section_header.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
@@ -10,6 +11,7 @@ class ProjectsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < AppDimensions.mobileBreakpoint;
+    final isTablet = size.width >= AppDimensions.mobileBreakpoint && size.width < AppDimensions.tabletBreakpoint;
 
     return Container(
       width: double.infinity,
@@ -34,25 +36,24 @@ class ProjectsSection extends StatelessWidget {
           SizedBox(height: AppDimensions.spacingXXL),
           LayoutBuilder(
             builder: (context, constraints) {
-              final maxWidth = constraints.maxWidth;
-              final cardWidth = isMobile
-                  ? maxWidth
-                  : (maxWidth - AppDimensions.spacingXL) / 2;
+              final int crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
+              final double maxContentWidth = 1400;
 
               return Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: 1400,
-                  ),
-                  child: Wrap(
-                    spacing: AppDimensions.spacingXL,
-                    runSpacing: AppDimensions.spacingXXL,
-                    alignment: WrapAlignment.start,
-                    children: MockData.projects.map((project) => SizedBox(
-                      width: cardWidth,
-                      child: ProjectCard(project: project),
-                    )).toList(),
+                  constraints: BoxConstraints(maxWidth: maxContentWidth),
+                  child: MasonryGridView.count(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: AppDimensions.spacingL,
+                    crossAxisSpacing: AppDimensions.spacingL,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: MockData.projects.length,
+                    itemBuilder: (context, index) {
+                      final project = MockData.projects[index];
+                      return ProjectCard(project: project);
+                    },
                   ),
                 ),
               );

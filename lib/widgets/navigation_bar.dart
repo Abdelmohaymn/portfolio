@@ -28,15 +28,61 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
     _NavItem(label: AppStrings.contactNav, id: 'contact'),
   ];
 
+  void _openMobileMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardBackgroundAlt,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ..._items.map((item) {
+                final isSelected = widget.currentSection == item.id;
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    item.label,
+                    style: TextStyle(
+                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    widget.onSelected(item.id);
+                  },
+                );
+              }).toList(),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isMobile = size.width < AppDimensions.mobileBreakpoint;
+    final bool useCompactMenu = size.width < AppDimensions.tabletBreakpoint;
 
     return Container(
       height: kToolbarHeight,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? AppDimensions.spacingL : AppDimensions.sectionPaddingHorizontal,
+        horizontal: useCompactMenu ? AppDimensions.spacingL : AppDimensions.sectionPaddingHorizontal,
       ),
       decoration: BoxDecoration(
         color: AppColors.scaffoldBackground,
@@ -68,8 +114,13 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
             ),
           ),
           const Spacer(),
-          ...isMobile
-              ? []
+          ...useCompactMenu
+              ? [
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    onPressed: () => _openMobileMenu(context),
+                  ),
+                ]
               : _items.map((item) => _buildNavItem(item, false)).toList(),
         ],
       ),

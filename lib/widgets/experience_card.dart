@@ -63,6 +63,10 @@ class _ExperienceCardState extends State<ExperienceCard>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < AppDimensions.mobileBreakpoint;
+    final isTablet = size.width >= AppDimensions.mobileBreakpoint && size.width < AppDimensions.tabletBreakpoint;
+
     return MouseRegion(
       onEnter: (_) => _onHover(true),
       onExit: (_) => _onHover(false),
@@ -81,193 +85,230 @@ class _ExperienceCardState extends State<ExperienceCard>
               ),
               gradient: _isHovered
                   ? LinearGradient(
-                colors: [
-                  AppColors.cardBackground,
-                  AppColors.primary.withValues(alpha: 0.05 * _glowAnimation.value),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
+                      colors: [
+                        AppColors.cardBackground,
+                        AppColors.primary.withValues(alpha: 0.05 * _glowAnimation.value),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
                   : null,
               boxShadow: _isHovered
                   ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.2 * _glowAnimation.value),
-                  blurRadius: 12 * _glowAnimation.value,
-                  spreadRadius: 2 * _glowAnimation.value,
-                ),
-              ]
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.2 * _glowAnimation.value),
+                        blurRadius: 12 * _glowAnimation.value,
+                        spreadRadius: 2 * _glowAnimation.value,
+                      ),
+                    ]
                   : null,
             ),
             child: Padding(
               padding: EdgeInsets.all(AppDimensions.spacingL),
+              child: isMobile
+                  ? _buildMobileLayout(context)
+                  : _buildDesktopTabletLayout(context, isTablet: isTablet),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
+          child: Image.asset(
+            widget.experience.companyLogo,
+            width: 48,
+            height: 48,
+            fit: BoxFit.cover,
+          ),
+        ),
+        SizedBox(width: AppDimensions.spacingM),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.experience.jobTitle,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              ShaderMask(
+                shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+                child: Text(
+                  widget.experience.companyName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateChip(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppDimensions.spacingM,
+        vertical: AppDimensions.spacingXS,
+      ),
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusS),
+      ),
+      child: Text(
+        '${widget.experience.startDate} - ${widget.experience.endDate}',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textPrimary,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildStoreButtons() {
+    if (widget.experience.googlePlayLink == null && widget.experience.appStoreLink == null) {
+      return const SizedBox.shrink();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (widget.experience.googlePlayLink != null)
+          StoreIconButton(
+            iconPath: 'assets/icons/google.svg',
+            onTap: () => _launchURL(widget.experience.googlePlayLink!),
+            isHovered: _isPlayStoreHovered,
+            onHoverChanged: (hovered) => setState(() => _isPlayStoreHovered = hovered),
+          ),
+        if (widget.experience.googlePlayLink != null && widget.experience.appStoreLink != null)
+          SizedBox(width: AppDimensions.spacingM),
+        if (widget.experience.appStoreLink != null)
+          StoreIconButton(
+            iconPath: 'assets/icons/apple.svg',
+            onTap: () => _launchURL(widget.experience.appStoreLink!),
+            isHovered: _isAppStoreHovered,
+            onHoverChanged: (hovered) => setState(() => _isAppStoreHovered = hovered),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAchievementsList(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widget.experience.achievements
+          .map(
+            (achievement) => Padding(
+              padding: EdgeInsets.only(bottom: AppDimensions.spacingM),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Left Column - Company Info
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Company Logo and Name
-                        Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
-                              child: Image.asset(
-                                widget.experience.companyLogo,
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(width: AppDimensions.spacingM),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Job Title
-                                  Text(
-                                    widget.experience.jobTitle,
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      color: AppColors.textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  // Company Name with Gradient
-                                  ShaderMask(
-                                    shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
-                                    child: Text(
-                                      widget.experience.companyName,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: AppDimensions.spacingL),
-
-                        // Date Range
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: AppDimensions.spacingM,
-                            vertical: AppDimensions.spacingXS,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusS),
-                          ),
-                          child: Text(
-                            '${widget.experience.startDate} - ${widget.experience.endDate}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-
-                        // Store Links (if available)
-                        // Store Links (if available)
-                        if (widget.experience.googlePlayLink != null ||
-                            widget.experience.appStoreLink != null) ...[
-                          SizedBox(height: AppDimensions.spacingM),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (widget.experience.googlePlayLink != null)
-                                StoreIconButton(
-                                  iconPath: 'assets/icons/google.svg',
-                                  onTap: () => _launchURL(widget.experience.googlePlayLink!),
-                                  isHovered: _isPlayStoreHovered,
-                                  onHoverChanged: (hovered) => setState(() => _isPlayStoreHovered = hovered),
-                                ),
-                              if (widget.experience.googlePlayLink != null &&
-                                  widget.experience.appStoreLink != null)
-                                SizedBox(width: AppDimensions.spacingM),
-                              if (widget.experience.appStoreLink != null)
-                                StoreIconButton(
-                                  iconPath: 'assets/icons/apple.svg',
-                                  onTap: () => _launchURL(widget.experience.appStoreLink!),
-                                  isHovered: _isAppStoreHovered,
-                                  onHoverChanged: (hovered) => setState(() => _isAppStoreHovered = hovered),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-
-                  // Vertical Divider
                   Container(
-                    width: 2,
-                    height: 120,
-                    margin: EdgeInsets.symmetric(horizontal: 20), // Fixed spacing to 20
+                    margin: const EdgeInsets.only(top: 8),
+                    width: 6,
+                    height: 6,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.4), // More opaque in the middle
-                          Colors.white.withOpacity(0.1),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(1),
+                      gradient: AppColors.primaryGradient,
+                      shape: BoxShape.circle,
                     ),
                   ),
-
-                  // Right Column - Achievements
+                  SizedBox(width: AppDimensions.spacingM),
                   Expanded(
-                    flex: 4,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...widget.experience.achievements.map(
-                              (achievement) => Padding(
-                            padding: EdgeInsets.only(bottom: AppDimensions.spacingM),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(top: 8),
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    gradient: AppColors.primaryGradient,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                SizedBox(width: AppDimensions.spacingM),
-                                Expanded(
-                                  child: ShaderTextParser(
-                                    text: achievement,
-                                    baseStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: AppColors.textTertiary,
-                                      height: 1.5,
-                                    ),
-                                    gradientColors: [AppColors.gradientStart, AppColors.gradientEnd],
-                                  ),
-                                ),
-                              ],
-                            ),
+                    child: ShaderTextParser(
+                      text: achievement,
+                      baseStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppColors.textTertiary,
+                            height: 1.5,
                           ),
-                        ),
-                      ],
+                      gradientColors: [AppColors.gradientStart, AppColors.gradientEnd],
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(context),
+        SizedBox(height: AppDimensions.spacingL),
+        Center(child: _buildDateChip(context)),
+        SizedBox(height: AppDimensions.spacingM),
+        _buildStoreButtons(),
+        SizedBox(height: AppDimensions.spacingL),
+        Container(
+          width: double.infinity,
+          height: 1,
+          color: AppColors.cardBorder,
+        ),
+        SizedBox(height: AppDimensions.spacingL),
+        _buildAchievementsList(context),
+      ],
+    );
+  }
+
+  Widget _buildDesktopTabletLayout(BuildContext context, {required bool isTablet}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left Column - Company Info
+        Expanded(
+          flex: isTablet ? 3 : 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildHeader(context),
+              SizedBox(height: AppDimensions.spacingL),
+              _buildDateChip(context),
+              if (widget.experience.googlePlayLink != null || widget.experience.appStoreLink != null) ...[
+                SizedBox(height: AppDimensions.spacingM),
+                _buildStoreButtons(),
+              ],
+            ],
+          ),
+        ),
+
+        // Vertical Divider
+        Container(
+          width: 2,
+          height: isTablet ? 100 : 120,
+          margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacingL),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0.1),
+                Colors.white.withOpacity(0.4),
+                Colors.white.withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+
+        // Right Column - Achievements
+        Expanded(
+          flex: 5,
+          child: _buildAchievementsList(context),
+        ),
+      ],
     );
   }
 }

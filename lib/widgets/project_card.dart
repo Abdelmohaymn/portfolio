@@ -355,27 +355,25 @@ class _ProjectCardState extends State<ProjectCard> with SingleTickerProviderStat
   }
 
   Widget _buildDesktopLayout(double logoSize) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left column with logo
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
-            child: Image.asset(
-              widget.project.logo,
-              width: logoSize,
-              height: logoSize,
-              fit: BoxFit.fill,
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left column with logo
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusM),
+          child: Image.asset(
+            widget.project.logo,
+            width: logoSize,
+            height: logoSize,
+            fit: BoxFit.fill,
           ),
-          SizedBox(width: AppDimensions.spacingL),
-          // Right column with content
-          Expanded(
-            child: _buildContent(),
-          ),
-        ],
-      ),
+        ),
+        SizedBox(width: AppDimensions.spacingL),
+        // Right column with content
+        Expanded(
+          child: _buildContent(),
+        ),
+      ],
     );
   }
 

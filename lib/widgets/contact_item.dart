@@ -23,20 +23,21 @@ class _ContactItemState extends State<ContactItem> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
+    return MouseRegion
+      (
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          //padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.withAlpha(Colors.white, 0.05),
             border: Border.all(color: AppColors.cardBorder),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 200),
@@ -54,7 +55,7 @@ class _ContactItemState extends State<ContactItem> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
                       width: 1.5,
@@ -76,19 +77,26 @@ class _ContactItemState extends State<ContactItem> {
                 ),
               ),
               const SizedBox(width: 16),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  foreground: isHovered ? (Paint()
-                    ..shader = AppColors.primaryGradient.createShader(
-                      const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
-                    ))
-                  : null,
-                  color: isHovered ? null : Colors.white,
+              Expanded(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    foreground: isHovered ? (Paint()
+                      ..shader = AppColors.primaryGradient.createShader(
+                        const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+                      ))
+                    : null,
+                    color: isHovered ? null : Colors.white,
+                  ),
+                  child: Text(
+                    widget.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                  ),
                 ),
-                child: Text(widget.text),
               ),
             ],
           ),

@@ -115,6 +115,10 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   }
 
   Widget _buildDesktopLayout() {
+    final width = MediaQuery.of(context).size.width;
+    final bool isTablet = width < AppDimensions.tabletBreakpoint;
+    final double buttonWidth = isTablet ? 180.0 : AppDimensions.buttonWidth;
+
     return Row(
       children: [
         Expanded(
@@ -155,20 +159,21 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                   ],
                 ),
                 const SizedBox(height: AppDimensions.spacingXXXL),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: AppDimensions.spacingL,
+                  runSpacing: AppDimensions.spacingM,
                   children: [
-                    Container(
-                      width: AppDimensions.buttonWidth,
+                    SizedBox(
+                      width: buttonWidth,
                       height: AppDimensions.buttonHeight,
                       child: GradientButton(
                         text: AppStrings.viewWorkButton,
                         onPressed: widget.onViewWorkPressed,
                       ),
                     ),
-                    const SizedBox(width: AppDimensions.spacingL),
                     SizedBox(
-                      width: AppDimensions.buttonWidth,
+                      width: buttonWidth,
                       height: AppDimensions.buttonHeight,
                       child: GradientBorderButton(
                         text: AppStrings.downloadCvButton,

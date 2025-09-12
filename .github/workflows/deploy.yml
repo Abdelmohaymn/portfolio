@@ -36,7 +36,7 @@ jobs:
             flutter build web \
             --release \
             --base-href "/portfolio/" \
-            --web-renderer canvaskit \
+            --web-renderer auto \
             --tree-shake-icons \
             --dart-define=FLUTTER_WEB_USE_SKIA=true
 
