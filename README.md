@@ -21,14 +21,6 @@ A modern, responsive portfolio website built with Flutter for web, inspired by h
 - **Google Fonts**: Typography
 - **URL Launcher**: External link handling
 
-## Getting Started
-
-### Prerequisites
-
-- Flutter SDK (3.6.1 or higher)
-- Dart SDK
-- Web browser
-
 ## Responsive Layout
 
 - Breakpoints (defined in `lib/constants/dimensions.dart`):
