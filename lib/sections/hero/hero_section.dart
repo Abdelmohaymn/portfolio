@@ -57,16 +57,15 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   }
 
   Future<void> _downloadCV() async {
-    final Uri url = Uri.base.resolve('assets/cv/Abdelmohaymn_Albashier_CV.pdf');
+    final Uri url = Uri.parse('assets/cv/Abdelmohaymn_Albashier_CV.pdf');
     if (!await launchUrl(
       url,
       webOnlyWindowName: '_blank',
-      mode: LaunchMode.externalApplication,
+      mode: LaunchMode.platformDefault,
     )) {
       throw Exception('Could not launch $url');
     }
   }
-
   @override
   void dispose() {
     _animationController.dispose();
