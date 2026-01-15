@@ -197,6 +197,14 @@ class MockData {
 
   static const List<Achievement> achievements = [
     Achievement(
+      title: 'Meta Hacker Cup (2025)',
+      points: [
+        'Achieved Global Rank #1200 (Prize Winner)#.',
+        'awarded exclusive #T-shirt# for top-tier performance among thousands of international competitors.',
+      ],
+      image: 'assets/achievements/meta_hacker_cup_2025.png',
+    ),
+    Achievement(
       title: 'Egypt IoT & AI Challenge (2024)',
       points: [
         'Ranked among the #Top 25 nationwide projects# with graduation project #Pety#.',
