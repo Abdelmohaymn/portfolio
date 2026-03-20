@@ -57,7 +57,7 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   }
 
   Future<void> _downloadCV() async {
-    final Uri url = Uri.parse('assets/assets/cv/Abdelmohaymn_Albashier_CV.pdf');
+    final Uri url = Uri.parse('https://drive.google.com/file/d/1W4z9cDhaWhpJLIK_CbH6LStBeJ3Wq1Wb/view?usp=drive_link');
     if (!await launchUrl(
       url,
       webOnlyWindowName: '_blank',
